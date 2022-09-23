@@ -1,5 +1,10 @@
 package wallet
 
+type Wallet struct {
+	UserID  int
+	Balance float64
+}
+
 type Repository interface {
 }
 
