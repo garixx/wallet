@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"errors"
 	"testing"
 	"wallet/internal/services/transaction"
 	"wallet/internal/services/user"
@@ -21,7 +22,7 @@ func TestService_Validate(t *testing.T) {
 			args: args{
 				entity: struct{}{},
 			},
-			expectedErr: validationError{message: "validation error: unsupported type struct {}"},
+			expectedErr: ErrUnsupportedType{message: "struct {}"},
 		},
 		{
 			name: "user",
@@ -51,8 +52,8 @@ func TestService_Validate(t *testing.T) {
 					t.Errorf("Validate() error = %v", err)
 				}
 			case tt.expectedErr != nil:
-				if err := s.Validate(tt.args.entity); err.Error() != tt.expectedErr.Error() {
-					t.Errorf("Validate() error = %v", err)
+				if err := s.Validate(tt.args.entity); !errors.Is(err, tt.expectedErr) {
+					t.Errorf("validate() error.\nactual   = %v,\nexpected = %v", err, tt.expectedErr)
 				}
 			}
 		})
@@ -75,8 +76,8 @@ func Test_validateUser(t *testing.T) {
 					Name: "xxx",
 				},
 			},
-			expectedErr: validationError{
-				message: "user validation error: name length less than 5",
+			expectedErr: ErrUserValidation{
+				message: "name length less than 5",
 			},
 		},
 		{
@@ -86,9 +87,12 @@ func Test_validateUser(t *testing.T) {
 					Name: "mytoolongnamelongerthantwenty",
 				},
 			},
-			expectedErr: validationError{
-				message: "user validation error: name length more than 20",
+			expectedErr: ErrUserValidation{
+				message: "name length more than 20",
 			},
+			//expectedErr: validationError{
+			//	message: "name length more than 20",
+			//},
 		},
 		{
 			name: "valid name",
@@ -98,7 +102,6 @@ func Test_validateUser(t *testing.T) {
 				},
 			},
 		},
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -109,8 +112,8 @@ func Test_validateUser(t *testing.T) {
 					t.Errorf("validateUser() error = %v", err)
 				}
 			case tt.expectedErr != nil:
-				if err := s.Validate(tt.args.u); err == nil || err.Error() != tt.expectedErr.Error() {
-					t.Errorf("validateUser() error = %v", err)
+				if err := s.Validate(tt.args.u); !errors.Is(err, tt.expectedErr) {
+					t.Errorf("validateUser() error.\nactual   = %v,\nexpected = %v", err, tt.expectedErr)
 				}
 			}
 		})
@@ -141,11 +144,10 @@ func Test_validateWallet(t *testing.T) {
 					Balance: -10.0,
 				},
 			},
-			expectedErr: validationError{
-				message: "wallet validation error: balance less than zero",
+			expectedErr: ErrWalletValidation{
+				message: "balance less than zero",
 			},
 		},
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -156,8 +158,8 @@ func Test_validateWallet(t *testing.T) {
 					t.Errorf("validateWallet() error = %v", err)
 				}
 			case tt.expectedErr != nil:
-				if err := s.Validate(tt.args.w); err == nil || err.Error() != tt.expectedErr.Error() {
-					t.Errorf("validateWallet() error = %v", err)
+				if err := s.Validate(tt.args.w); !errors.Is(err, tt.expectedErr) {
+					t.Errorf("validateUser() error.\nactual   = %v,\nexpected = %v", err, tt.expectedErr)
 				}
 			}
 		})
@@ -188,11 +190,10 @@ func Test_validateTransaction(t *testing.T) {
 					Amount: -10.0,
 				},
 			},
-			expectedErr: validationError{
-				message: "transaction validation error: amount less than zero",
+			expectedErr: ErrTransactionValidation{
+				message: "amount less than zero",
 			},
 		},
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -203,8 +204,8 @@ func Test_validateTransaction(t *testing.T) {
 					t.Errorf("validateTransaction() error = %v", err)
 				}
 			case tt.expectedErr != nil:
-				if err := s.Validate(tt.args.ta); err == nil || err.Error() != tt.expectedErr.Error() {
-					t.Errorf("validateTransaction() error = %v", err)
+				if err := s.Validate(tt.args.ta); !errors.Is(err, tt.expectedErr) {
+					t.Errorf("validateUser() error.\nactual   = %v,\nexpected = %v", err, tt.expectedErr)
 				}
 			}
 		})
